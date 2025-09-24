@@ -40,3 +40,16 @@ export declare const styleSheetSerializer: SnapshotSerializer & {
   setStyleSheetSerializerOptions: (options?: StyledComponentsSerializerOptions) => void 
 };
 export declare const setStyleSheetSerializerOptions: (options?: StyledComponentsSerializerOptions) => void;
+
+// Plugin interface
+export interface PluginOptions extends StyledComponentsSerializerOptions {
+  autoSetup?: boolean;
+}
+
+export interface RstestPlugin {
+  name: string;
+  setup?: (api: any) => void;
+  configure?: (config: any) => any;
+}
+
+export declare function styledComponentsPlugin(options?: PluginOptions): RstestPlugin;

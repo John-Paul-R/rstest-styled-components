@@ -10,6 +10,11 @@ This package provides a `toHaveStyleRule` matcher to make expectations on CSS st
 ## Installation
 
 ```sh
+pnpm add -D rstest-styled-components
+```
+
+Or with npm:
+```sh
 npm install --save-dev rstest-styled-components
 ```
 
@@ -36,14 +41,74 @@ If you don't want to import the library in every test file, it's recommended to 
 Table of Contents
 =================
 
+   * [Setup Options](#setup-options)
+      * [Plugin Setup (Recommended)](#plugin-setup-recommended)
+      * [Setup Files](#setup-files)
+      * [Direct Import](#direct-import)
    * [Snapshot Testing](#snapshot-testing)
       * [Basic Usage](#basic-usage)
       * [React Testing Library](#react-testing-library)
       * [Enzyme Support](#enzyme-support)
       * [Serializer Options](#serializer-options)
    * [toHaveStyleRule](#tohavestylerule)
-   * [Global installation](#global-installation)
    * [Contributing](#contributing)
+
+# Setup Options
+
+There are multiple ways to configure rstest-styled-components depending on your preference and rstest version:
+
+## Plugin Setup (Recommended)
+
+**🚀 When rstest supports plugins** (future feature), configure in `rstest.config.js`:
+
+```js
+import { styledComponentsPlugin } from 'rstest-styled-components/plugin';
+
+export default {
+  plugins: [
+    styledComponentsPlugin({
+      addStyles: true,
+      classNameFormatter: (index) => `c${index}`,
+      autoSetup: true
+    })
+  ]
+};
+```
+
+**Benefits:**
+- ✅ Zero imports needed in test files
+- ✅ Centralized configuration
+- ✅ Automatic setup across all tests
+
+## Setup Files
+
+**📁 Current approach** - Configure in `rstest.config.js`:
+
+```js
+export default {
+  setupFilesAfterEnv: [
+    'rstest-styled-components/setup'
+  ]
+};
+```
+
+**Benefits:**
+- ✅ Works today with current rstest
+- ✅ No imports needed in test files  
+- ✅ Standard testing framework pattern
+
+## Direct Import
+
+**📦 Manual approach** - Import in each test file:
+
+```js
+import 'rstest-styled-components';
+```
+
+**Benefits:**
+- ✅ Full control over when utilities are loaded
+- ✅ Works with any testing framework
+- ✅ Explicit dependencies
 
 # Snapshot Testing
 
@@ -248,19 +313,33 @@ It checks the style rules applied to the root component it receives, therefore t
 
 > Note: for `react-testing-library`, you'll need to pass the first child to check the top-level component's style. To check the styles of deeper components, you can use one of the `getBy*` methods to find the element (e.g. `expect(getByTestId('styled-button')).toHaveStyleRule('color', 'blue')`)
 
-# Global installation
+# Plugin Configuration Options
 
-It is possible to setup this package for all the tests. For example: import the library once in the `src/setupTests.js` as follows:
-
-```js
-import 'rstest-styled-components'
-```
-
-...then add the following to your rstest configuration:
+When using the plugin approach, you can customize behavior:
 
 ```js
-setupFilesAfterEnv: ['<rootDir>/src/setupTests.js']
+import { styledComponentsPlugin } from 'rstest-styled-components/plugin';
+
+export default {
+  plugins: [
+    styledComponentsPlugin({
+      // Include CSS styles in snapshots (default: true)
+      addStyles: true,
+      
+      // Custom class name formatter (default: index => `c${index}`)
+      classNameFormatter: (index) => `styled-${index}`,
+      
+      // Auto-setup matchers and serializers (default: true)
+      autoSetup: true
+    })
+  ]
+};
 ```
+
+**Available Options:**
+- **`addStyles`** - Include CSS rules in snapshots
+- **`classNameFormatter`** - Function to format stable class names
+- **`autoSetup`** - Automatically register matchers and serializers
 
 # Contributing
 
