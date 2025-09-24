@@ -36,9 +36,119 @@ If you don't want to import the library in every test file, it's recommended to 
 Table of Contents
 =================
 
+   * [Snapshot Testing](#snapshot-testing)
+      * [Basic Usage](#basic-usage)
+      * [React Testing Library](#react-testing-library)
+      * [Enzyme Support](#enzyme-support)
+      * [Serializer Options](#serializer-options)
    * [toHaveStyleRule](#tohavestylerule)
    * [Global installation](#global-installation)
    * [Contributing](#contributing)
+
+# Snapshot Testing
+
+Rstest [snapshot testing](https://rstest.rs/docs/snapshot-testing) is an excellent way to test React components and ensure styles don't change unexpectedly. This package enhances the snapshot testing experience by including actual CSS rules in your snapshots and replacing dynamic class names with stable placeholders.
+
+## Basic Usage
+
+When you import `rstest-styled-components`, it automatically adds a snapshot serializer that:
+
+1. **Includes CSS rules** in your snapshots
+2. **Replaces dynamic class names** with stable placeholders (e.g., `c0`, `c1`) 
+3. **Cleans up** unreferenced class names
+
+```js
+import React from 'react'
+import styled from 'styled-components'
+import renderer from 'react-test-renderer'
+import 'rstest-styled-components'
+
+const Button = styled.button`
+  color: red;
+  background: blue;
+`
+
+test('Button snapshot', () => {
+  const tree = renderer.create(<Button>Click me</Button>).toJSON()
+  expect(tree).toMatchSnapshot()
+})
+```
+
+This produces a snapshot like:
+```
+.c0 {
+  color: red;
+  background: blue;
+}
+
+<button
+  className="c0"
+>
+  Click me
+</button>
+```
+
+## React Testing Library
+
+Works seamlessly with React Testing Library:
+
+```js
+import { render } from '@testing-library/react'
+
+test('Button with testing library', () => {
+  const { container } = render(<Button>Click me</Button>)
+  expect(container.firstChild).toMatchSnapshot()
+})
+```
+
+## Enzyme Support
+
+Also works with Enzyme shallow and mount:
+
+```js
+import { shallow, mount } from 'enzyme'
+
+test('Button with Enzyme', () => {
+  const wrapper = shallow(<Button>Click me</Button>)
+  expect(wrapper).toMatchSnapshot()
+  
+  const mounted = mount(<Button>Click me</Button>)
+  expect(mounted).toMatchSnapshot()
+})
+```
+
+## Serializer Options
+
+You can customize the serializer behavior:
+
+```js
+import { setStyleSheetSerializerOptions } from 'rstest-styled-components/serializer'
+
+// Disable CSS styles in snapshots
+setStyleSheetSerializerOptions({
+  addStyles: false
+})
+
+// Use custom class name formatting
+setStyleSheetSerializerOptions({
+  classNameFormatter: (index) => `styled-${index}`
+})
+```
+
+Available options:
+- **`addStyles`** (boolean, default: `true`) - Include CSS styles in snapshots
+- **`classNameFormatter`** (function, default: `(index) => \`c${index}\``) - Format replacement class names
+
+### Import Serializer Separately
+
+You can import just the serializer without other functionality:
+
+```js
+import { styleSheetSerializer } from 'rstest-styled-components/serializer'
+
+// Manually add the serializer
+expect.addSnapshotSerializer(styleSheetSerializer)
+```
 
 # toHaveStyleRule
 

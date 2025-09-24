@@ -25,4 +25,18 @@ export interface Matcher {
   (component: any, property: string, expected?: Value, options?: Options): { pass: boolean; message(): string };
 }
 
+export interface StyledComponentsSerializerOptions { 
+  addStyles?: boolean, 
+  classNameFormatter?: (index: number) => string 
+} 
+
+export interface SnapshotSerializer {
+  test: (val: any) => boolean;
+  serialize: (val: any, config: any, indentation: string, depth: number, refs: any, printer: any) => string;
+}
+
 export declare const toHaveStyleRule: Matcher;
+export declare const styleSheetSerializer: SnapshotSerializer & {
+  setStyleSheetSerializerOptions: (options?: StyledComponentsSerializerOptions) => void 
+};
+export declare const setStyleSheetSerializerOptions: (options?: StyledComponentsSerializerOptions) => void;
