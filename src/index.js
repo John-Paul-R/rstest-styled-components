@@ -1,12 +1,20 @@
 const toHaveStyleRule = require('./toHaveStyleRule');
-const styleSheetSerializer = require('./styleSheetSerializer');
 const { resetStyleSheet } = require('./utils');
 
-global.beforeEach(resetStyleSheet);
+// Setup for rstest
+if (typeof beforeEach === 'function') {
+  beforeEach(resetStyleSheet);
+} else if (typeof global !== 'undefined' && global.beforeEach) {
+  global.beforeEach(resetStyleSheet);
+}
 
-expect.addSnapshotSerializer(styleSheetSerializer);
-expect.extend({ toHaveStyleRule });
+// Extend expect with toHaveStyleRule matcher for rstest
+if (typeof expect !== 'undefined' && expect.extend) {
+  expect.extend({ toHaveStyleRule });
+} else if (typeof global !== 'undefined' && global.expect && global.expect.extend) {
+  global.expect.extend({ toHaveStyleRule });
+}
 
 module.exports = {
-  styleSheetSerializer,
+  toHaveStyleRule,
 };

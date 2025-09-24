@@ -1,8 +1,7 @@
-import { NewPlugin } from 'pretty-format'
 import { css } from 'styled-components'
 
 declare global {
-  namespace jest {
+  namespace rstest {
     interface AsymmetricMatcher {
       $$typeof: Symbol;
       sample?: string | RegExp | object | Array<any> | Function;
@@ -22,11 +21,8 @@ declare global {
   }
 }
 
-export interface StyledComponentsSerializerOptions { 
-  addStyles?: boolean, 
-  classNameFormatter?: (index: number) => string 
-} 
+export interface Matcher {
+  (component: any, property: string, expected?: Value, options?: Options): { pass: boolean; message(): string };
+}
 
-export declare const styleSheetSerializer: NewPlugin & {
-  setStyleSheetSerializerOptions: (options?: StyledComponentsSerializerOptions) => void 
-};
+export declare const toHaveStyleRule: Matcher;

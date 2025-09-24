@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import renderer from 'react-test-renderer';
 import { render } from '@testing-library/react';
-import '../rstest';
+import '../src';
 
 const Button = styled.button`
   color: red;
