@@ -2,21 +2,6 @@ name: Publish to NPM
 
 on:
   workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version bump type'
-        required: true
-        default: 'patch'
-        type: choice
-        options:
-          - patch
-          - minor
-          - major
-          - prerelease
-      tag:
-        description: 'NPM dist-tag (latest, beta, alpha, etc.)'
-        required: false
-        default: 'latest'
 
 jobs:
   publish:
@@ -57,46 +42,52 @@ jobs:
       - name: Run tests
         run: pnpm test
 
-      - name: Configure Git
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+      - name: Get package version
+        id: package_version
+        run: echo "VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
 
-      - name: Bump version
+      - name: Check if version already exists
         run: |
-          if [ "${{ inputs.version }}" = "prerelease" ]; then
-            npm version prerelease --preid=beta
-          else
-            npm version ${{ inputs.version }}
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          VERSION=${{ steps.package_version.outputs.VERSION }}
+
+          if npm view "${PACKAGE_NAME}@${VERSION}" version 2>/dev/null; then
+            echo "Error: Version ${VERSION} already exists on NPM"
+            echo "Please update package.json version before publishing"
+            exit 1
+          fi
+
+          if git tag -l | grep -q "^v${VERSION}$"; then
+            echo "Error: Git tag v${VERSION} already exists"
+            echo "Please update package.json version before publishing"
+            exit 1
           fi
 
       - name: Build package
         run: pnpm run build
 
       - name: Publish to NPM
-        run: |
-          if [ "${{ inputs.tag }}" = "latest" ]; then
-            pnpm publish --access public --no-git-checks
-          else
-            pnpm publish --access public --tag ${{ inputs.tag }} --no-git-checks
-          fi
+        run: pnpm publish --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Push version bump
+      - name: Create and push git tag
         run: |
-          git push origin main --tags
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git tag "v${{ steps.package_version.outputs.VERSION }}"
+          git push origin "v${{ steps.package_version.outputs.VERSION }}"
 
       - name: Create GitHub Release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ steps.version.outputs.new_version }}
-          release_name: Release v${{ steps.version.outputs.new_version }}
+          tag_name: v${{ steps.package_version.outputs.VERSION }}
+          release_name: Release v${{ steps.package_version.outputs.VERSION }}
           body: |
-            Release notes for version ${{ steps.version.outputs.new_version }}
-            
-            Published to NPM with tag: ${{ inputs.tag }}
+            Release notes for version ${{ steps.package_version.outputs.VERSION }}
+
+            Published to NPM as latest version.
           draft: false
-          prerelease: ${{ inputs.version == 'prerelease' }}
+          prerelease: false
