@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "noEmit": true,
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
+    "lib": ["ES2020"]
+  },
+  "include": ["./*.{ts,tsx}", "../typings/*.ts"]
+}
