@@ -68,14 +68,24 @@ const matcherTest = (received, expected, isNot) => {
     return received !== undefined;
   }
 
-  try {
-    const matcher = expected instanceof RegExp ? expect.stringMatching(expected) : expected;
-
-    expect(received).toEqual(matcher);
-    return true;
-  } catch (error) {
-    return false;
+  // Handle undefined/null cases
+  if (expected === undefined) {
+    return received === undefined;
   }
+
+  // Handle RegExp matching
+  if (expected instanceof RegExp) {
+    return expected.test(received);
+  }
+
+  // Handle string containing pattern (for Chai/Jest compatibility)
+  if (expected && typeof expected === 'object' && expected.asymmetricMatch) {
+    // Jest asymmetric matcher (like expect.stringContaining)
+    return expected.asymmetricMatch(received);
+  }
+
+  // Direct equality comparison
+  return received === expected;
 };
 
 module.exports = {

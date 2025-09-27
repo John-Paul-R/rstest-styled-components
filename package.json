@@ -49,7 +49,8 @@
     "typescript": "^5.9.2"
   },
   "dependencies": {
-    "@adobe/css-tools": "^4.0.1"
+    "@adobe/css-tools": "^4.0.1",
+    "jsdom": "^27.0.0"
   },
   "peerDependencies": {
     "styled-components": ">= 5"

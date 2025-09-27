@@ -66,7 +66,7 @@ export interface PluginOptions extends StyledComponentsSerializerOptions {
 
 export interface RstestPlugin {
   name: string;
-  setup?: (api: any) => void;
+  setup: (api: any) => void;
   configure?: (config: any) => any;
 }
 

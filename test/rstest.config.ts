@@ -1,18 +1,22 @@
 // Example rstest configuration with styled-components plugin
+import { defineConfig } from "@rstest/core";
 
 // Option 1: Using the plugin (when rstest supports plugins)
-import { styledComponentsPlugin } from "../";
+// import { styledComponentsPlugin } from "../";
 
-export default {
-  // Plugin-based configuration (future rstest feature)
-  plugins: [
-    styledComponentsPlugin({
-      addStyles: true,
-      classNameFormatter: (index) => `styled-${index}`,
-      autoSetup: true,
-    }),
-  ],
-};
+console.log("rstest config!");
+
+export default defineConfig({
+  // testEnvironment: "jsdom", // for some reason setting testEnvironment breaks things
+  // plugins: [
+  //   styledComponentsPlugin({
+  //     addStyles: true,
+  //     classNameFormatter: (index) => `styled-${index}`,
+  //     autoSetup: true,
+  //   }),
+  // ],
+  // setupFiles: ["./setup/index.js"],
+});
 
 // Option 2: Using setup files (more likely current approach)
 /*
